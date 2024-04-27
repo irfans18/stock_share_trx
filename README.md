@@ -1,7 +1,8 @@
-# Stock Share Transactions
 ## Table of Contents
 - [Overview](#overview)
 - [Penjelasan solution.go](#penjelasan-solutiongo)
+- [Penjelasan altSolution.go](#penjelasan-altsolutiongo)
+
 
 ## Overview
 **Problem Statement:** <br> 
@@ -67,3 +68,72 @@ Di sini, kita melakukan iterasi melalui semua harga saham. Untuk setiap harga, k
 	return sell[transactions]
 ```
 Akhirnya, kita mengembalikan nilai `sell[transactions]`, yang merupakan profit maksimum setelah melakukan `transactions` transaksi. Ini adalah hasil akhir dari algoritma yang diimplementasikan.
+
+## Penjelasan altSolution.go
+Pada fungsi `maxProfit`:
+
+```go
+func maxProfit(prices []int, transactions int) int {
+	n := len(prices)
+	if n <= 1 {
+		return 0
+	}
+	if transactions >= n/2 {
+		profit := 0
+		for i := 1; i < n; i++ {
+			if prices[i] > prices[i-1] {
+				profit += prices[i] - prices[i-1]
+			}
+		}
+		return profit
+	}
+```
+Fungsi `maxProfit` ini mengambil sebuah slice `int` yang mewakili harga-harga dan sebuah integer `transactions` yang mewakili jumlah transaksi yang diizinkan. Fungsi ini menghitung profit maksimum yang dapat diperoleh dengan transaksi dan harga-harga yang diberikan.
+
+Jika hanya ada satu atau nol harga, maka akan mengembalikan 0, karena tidak ada profit yang bisa didapatkan.
+
+Jika jumlah transaksi yang diizinkan lebih dari atau sama dengan setengah dari jumlah harga, maka kita bisa melakukan transaksi sebanyak yang diinginkan. Jadi, fungsi tersebut menghitung profit secara langsung dengan mengiterasi harga-harga dan menambahkan selisih antara harga-harga yang berturut-turut di mana harga tersebut meningkat.
+
+```go
+	dp := make([][]int, transactions+1)
+	for i := range dp {
+		dp[i] = make([]int, n)
+	}
+```
+Di sini, kita menginisialisasi slice 2D `dp` untuk menyimpan nilai-nilai pemrograman dinamis. Ini memiliki `transactions+1` baris dan `n` kolom.
+
+```go
+	for i := 1; i <= transactions; i++ {
+		maxDiff := -prices[0]
+		for j := 1; j < n; j++ {
+			dp[i][j] = max(dp[i][j-1], prices[j]+maxDiff)
+			maxDiff = max(maxDiff, dp[i-1][j]-prices[j])
+		}
+	}
+```
+Ini adalah bagian pemrograman dinamis dari fungsi tersebut. Ini mengiterasi transaksi dan harga-harga, menghitung profit maksimum yang dapat diperoleh pada setiap transaksi dan setiap harga.
+
+```go
+	return dp[transactions][n-1]
+```
+Akhirnya, fungsi tersebut mengembalikan profit maksimum yang dapat diperoleh setelah `transactions` transaksi.
+
+```go
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+```
+Ini adalah fungsi pembantu `max` yang mengembalikan nilai maksimum dari dua bilangan bulat `a` dan `b`.
+
+```go
+func main() {
+	prices := []int{7, 1, 4, 9, 10, 2, 0, 1, 3, 4, 7, 1, 2, 3, 4, 5}
+
+	transactions := 3
+	fmt.Println("Maximum profit:", maxProfit(prices, transactions)) 
+}
+```
+Di fungsi `main`, sebuah slice `prices` yang berisi beberapa harga contoh dibuat, dan jumlah transaksi yang diizinkan diatur menjadi 3. Kemudian, dipanggil fungsi `maxProfit` dengan nilai-nilai tersebut dan mencetak profit maksimum yang diperoleh.
